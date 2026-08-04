@@ -1,13 +1,82 @@
+# terraform-azurerm-caf-consumption_budget_subscription
+
+Creates an `azurerm_consumption_budget_subscription` resource following the Government of Canada CAF naming and tagging convention.
+
+## Usage
+
+### ESLZ module block (`ESLZ/consumption_budget_subscription.tf`)
+
+```hcl
+module "consumption_budget_subscription" {
+  source   = "github.com/canada-ca-terraform-modules/terraform-azurerm-caf-consumption_budget_subscription?ref=v1.1.0"
+  for_each = var.consumption_budget_subscription
+
+  env               = each.value.env
+  group             = each.value.group
+  project           = each.value.project
+  userDefinedString = each.value.userDefinedString
+  subscription_id   = each.value.subscription_id
+  tags              = try(each.value.tags, {})
+  budget            = each.value.budget
+}
+```
+
+### ESLZ tfvars pattern (`ESLZ/consumption_budget_subscription.tfvars`)
+
+```hcl
+consumption_budget_subscription = {
+  example = {
+    env               = "Dev"
+    group             = "OPS"
+    project           = "CORE"
+    userDefinedString = "budget01"
+    subscription_id   = "00000000-0000-0000-0000-000000000000"
+
+    budget = {
+      budget_amount  = 1000
+      contact_emails = ["foo@example.com"]
+      notification = {
+        actual_90 = {
+          operator  = "EqualTo"
+          threshold = 90
+        }
+      }
+    }
+  }
+}
+```
+
+## New arguments (azurerm ~> 5.0)
+
+| Key | Type | Description |
+|---|---|---|
+| `budget.name` | string | Optional override for the auto-generated budget name |
+| `budget.time_period.end_date` | string | Optional end date for the budget (defaults to 10 years after `start_date`) |
+| `budget.notification.<key>.contact_emails` | list(string) | Optional per-notification override of the top-level `budget.contact_emails` |
+
+## Testing
+
+```bash
+terraform fmt -recursive && terraform init -backend=false && terraform validate && terraform test
+```
+
+## CI
+
+GitHub Actions workflow at `.github/workflows/terraform-ci.yml` runs fmt, init, validate, test, and tflint on every PR. `.github/workflows/release.yml` tags a GitHub release on merge to `main`, using the version pinned in `ESLZ/consumption_budget_subscription.tf`.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 5.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 5.0 |
 
 ## Modules
 
