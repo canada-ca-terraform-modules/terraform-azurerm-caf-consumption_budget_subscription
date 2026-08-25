@@ -1,3 +1,4 @@
+# Touched here (no-op) so this PR's diff satisfies live-test.yml's path filter.
 terraform {
   required_version = ">= 1.9"
   required_providers {
